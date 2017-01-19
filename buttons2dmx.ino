@@ -64,9 +64,14 @@ void loop() {
     
     if (until[i] > millis()){
 #if DEBUG
-      Serial.print(" *** SENDING NOW ***");
+      Serial.print(" *** SENDING values[i] NOW ***");
 #endif
       DmxSimple.write(addresses[i], values[i]);
+    } else{
+#if DEBUG
+      Serial.print(" *** SENDING Zero NOW ***");
+#endif
+      DmxSimple.write(addresses[i], 0);     // default to zero
     }
 
 #if DEBUG
