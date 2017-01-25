@@ -1,7 +1,7 @@
 #include <DmxSimple.h>
 
 #define DEBUG 1                 // Optimize speed by setting to zero
-#define BROADCAST_MS 2000       //  How long in ms to send desired DMX value
+#define BROADCAST_MS 2000       // How long in ms to send desired DMX value
 #define LOOP_DELAY 250          // ms to wait between checking GPI.  Also DMX send interval !
 
                                 // Arduino Pins to use
@@ -20,6 +20,7 @@ unsigned long until[] = {0,0,0,0, 0,0,0,0};
 #define GPI_PIN_ON    LOW             // If voltage is LOW, the dip switch is in the ON position. 
 
 void setup() {
+  
 #if DEBUG
   // Open serial communications and wait for port to open:
   Serial.begin(57600);
@@ -28,9 +29,9 @@ void setup() {
   }
 #endif
   
-  DmxSimple.usePin(3);
-                                        // Initialize the input (contact closure) pins
-  for (int i=0; i<sizeof(pins); i++)
+  DmxSimple.usePin(3);                  // Arduino pin to use for DMX transmission
+                                        
+  for (int i=0; i<sizeof(pins); i++)    // Initialize the input (contact closure) pins
   {
     pinMode(pins[i], INPUT);            // set pin to input
     digitalWrite(pins[i], HIGH);        // turn on pullup resistor
@@ -62,7 +63,7 @@ void loop() {
     Serial.print(until[i]);
 #endif
     
-    if (until[i] > millis()){
+    if (until[i] > millis()){                           // Check if we should still be sending the DMX value "until BROADCAST_MS"
 #if DEBUG
       Serial.print(" *** SENDING values[i] NOW ***");
 #endif
