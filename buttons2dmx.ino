@@ -2,7 +2,7 @@
 
 #define DEBUG 1                 // Optimize speed by setting to zero
 #define BROADCAST_MS 2000       // How long in ms to send desired DMX value
-#define LOOP_DELAY 250          // ms to wait between checking GPI.  Also DMX send interval !
+#define LOOP_DELAY 100          // ms to wait between checking GPI.  Also DMX send interval !
 
                                 // Arduino Pins to use
 unsigned char pins[] = {5,6,7,8, 9,10,11,12};
@@ -56,34 +56,34 @@ void loop() {
       until[i] = millis() + BROADCAST_MS;
     } 
 
-#if DEBUG
-    sprintf(debug, "pin %02d = %d - Button %d - Send DMX value %03d to Address %03d Until ", 
-                              pins[i], val, i, values[i], addresses[i]);
-    Serial.print(debug);
-    Serial.print(until[i]);
-#endif
+
     
     if (until[i] > millis()){                           // Check if we should still be sending the DMX value "until BROADCAST_MS"
 #if DEBUG
-      Serial.print(" *** SENDING values[i] NOW ***");
+      sprintf(debug, "pin %02d = %d - Button %d - Send DMX value %03d to Address %03d Until ", 
+                                pins[i], val, i, values[i], addresses[i]);
+      Serial.print(debug);
+      Serial.println(until[i]);
 #endif
       DmxSimple.write(addresses[i], values[i]);
       
-    } else if (until[i] > (millis() + BROADCAST_MS) ){   // After broadcast is over send Zeros for same interval
+    } else if (until[i] && (until[i] + BROADCAST_MS) > millis()){   // After broadcast is over send Zeros for same interval
 #if DEBUG
-      Serial.print(" *** SENDING Zero NOW ***");
+      sprintf(debug, "pin %02d = %d - Button %d - Send DMX value %03d to Address %03d Until ", 
+                                pins[i], val, i, 0, addresses[i]);
+      Serial.print(debug);
+      Serial.println(until[i] + BROADCAST_MS);
 #endif
       DmxSimple.write(addresses[i], 0);     // default to zero
     }
 
-#if DEBUG
-    Serial.println(" ");
-#endif
   }
-#if DEBUG
-  delay(250);
-  Serial.print("\n------ Millisecond Timer is now ");
+#if DEBUGGER
+
+  Serial.print("------ Millisecond Timer is now ");
   Serial.println(millis());
 #endif
+
+  delay(LOOP_DELAY);
   
 }
