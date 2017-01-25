@@ -1,23 +1,23 @@
 #include <DmxSimple.h>
 
-#define DEBUG 1
-#define BROADCAST_SECONDS 2
+#define DEBUG 1                 // Optimize speed by setting to zero
+#define BROADCAST_MS 2000       //  How long in ms to send desired DMX value
+#define LOOP_DELAY 250          // ms to wait between checking GPI.  Also DMX send interval !
 
-                      // Arduino Pins to use
+                                // Arduino Pins to use
 unsigned char pins[] = {5,6,7,8, 9,10,11,12};
 
-                      // DMX address array
+                                // DMX address array
 unsigned char addresses[] = {101, 102, 103, 104,  105, 106, 107, 108};
 
-                      // DMX value array
+                                // DMX value array
 unsigned char values[] =   {255, 255, 255, 255,  255, 255, 255, 255};
 
-                      //  until timers for each button
+                                //  until timers for each button
 unsigned long until[] = {0,0,0,0, 0,0,0,0};    
 
 
-
-#define GPI_PIN_ON    LOW             // If voltage is HIGH, the dip switch is in the ON position. 
+#define GPI_PIN_ON    LOW             // If voltage is LOW, the dip switch is in the ON position. 
 
 void setup() {
 #if DEBUG
@@ -29,11 +29,11 @@ void setup() {
 #endif
   
   DmxSimple.usePin(3);
-            // Initialize the input (contact closure) pins
+                                        // Initialize the input (contact closure) pins
   for (int i=0; i<sizeof(pins); i++)
   {
-    pinMode(pins[i], INPUT);           // set pin to input
-    digitalWrite(pins[i], HIGH);       // turn on pullup resistor
+    pinMode(pins[i], INPUT);            // set pin to input
+    digitalWrite(pins[i], HIGH);        // turn on pullup resistor
   }
 }
 
@@ -52,7 +52,7 @@ void loop() {
     val = digitalRead(pins[i]);
     
     if (val==GPI_PIN_ON){
-      until[i] = millis() + (BROADCAST_SECONDS * 1000);
+      until[i] = millis() + BROADCAST_MS;
     } 
 
 #if DEBUG
@@ -67,7 +67,8 @@ void loop() {
       Serial.print(" *** SENDING values[i] NOW ***");
 #endif
       DmxSimple.write(addresses[i], values[i]);
-    } else{
+      
+    } else if (until[i] > (millis() + BROADCAST_MS) ){   // After broadcast is over send Zeros for same interval
 #if DEBUG
       Serial.print(" *** SENDING Zero NOW ***");
 #endif
